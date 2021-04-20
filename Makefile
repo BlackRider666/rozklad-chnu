@@ -5,7 +5,8 @@ install:
 	docker exec -it api_rozklad bash -c 'composer dump-autoload'
 	docker exec -it api_rozklad bash -c 'php artisan migrate --seed'
 	docker exec -it api_rozklad bash -c 'php artisan storage:link'
-
+	docker exec -it api_rozklad bash -c 'chmod -R 777 storage'
+	docker exec -it api_rozklad bash -c 'php artisan key:generate'
 up-d:
 	COMPOSE_HTTP_TIMEOUT=300 docker-compose up -d --build
 
