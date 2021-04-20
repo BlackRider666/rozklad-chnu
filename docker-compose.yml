@@ -1,0 +1,70 @@
+version: "3.7"
+services:
+  nginx:
+    image: nginx:1.16-alpine
+    container_name: nginx_rozklad
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./api:/var/www/api
+      - ./client:/var/www/client
+      - ./docker/nginx:/etc/nginx/conf.d/
+    networks:
+      - rozklad
+
+  db:
+    image: mysql:5.7.22
+    container_name: db_rozklad
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: project
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: rozklad
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./db_data:/var/lib/mysql
+      - ./docker/mysql:/etc/mysql/conf.d
+    networks:
+      - rozklad
+
+  api:
+    build:
+      args:
+        user: root
+        uid: 1000
+      context: ./docker
+      dockerfile: Dockerfile
+    tty: true
+    container_name: api_rozklad
+    restart: unless-stopped
+    working_dir: /var/www/api
+    volumes:
+      - ./api:/var/www/api
+    networks:
+      - rozklad
+
+  client:
+    image: node:current-alpine
+    container_name: client_rozklad
+    tty: true
+    volumes:
+      - ./client:/client
+    working_dir: /client
+    environment:
+      NODE_ENV: development
+    command: npm run serve
+    networks:
+      - rozklad
+
+volumes:
+  db_data:
+
+networks:
+  rozklad:
+    driver: bridge

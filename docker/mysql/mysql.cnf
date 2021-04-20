@@ -1,0 +1,5 @@
+[mysql]
+max_allowed_packet=16M
+
+[mysqld]
+explicit_defaults_for_timestamp = 1
